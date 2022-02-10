@@ -1,6 +1,9 @@
 # webService
 Spring2022 - Assignment 1
 
+Name - Ashwin Balaji Dhandapani
+NUID - 002172214
+Email - dhandapani.as@northeastern.edu
 #### Pre-requisites:
 1. Install node (latest version)
 2. Install git
