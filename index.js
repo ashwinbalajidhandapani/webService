@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('./database');
 const hashBcrypt = require('bcrypt');
 const { Pool } = require('pg');
+const { compareSync } = require('bcryptjs');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -20,8 +21,19 @@ app.post("/v1/user", async(req,res, next)=>{
         const{first_name, last_name, email_id, password} = req.body;
         const salt = hashBcrypt.genSaltSync(10);
         const hash = hashBcrypt.hashSync(password, salt);
+        let userCreatedVals;
         const queryAddUser = await pool.query(`INSERT INTO webserviceusers(emailid, firstname, lastname, password, datecreated, dateupdated) VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
-        res.status(201).send('User Created');
+        const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, password, datecreated, dateupdated from webserviceusers where emailid='${email_id}'`);
+        userCreatedVals = (await queryGetUserDetails).rows[0];
+        const responseVals = {
+            id:userCreatedVals["id"],
+            first_name:userCreatedVals["firstname"],
+            last_name:userCreatedVals["lastname"],
+            account_created:userCreatedVals["datecreated"],
+            account_updated:userCreatedVals["dateupdated"]
+        }
+        res.status(201).json(responseVals);
+
     } catch (err) {
         if (err.constraint === 'uemail'){
             res.status(400).send('Email already exists');
@@ -38,9 +50,9 @@ app.get("/v1/user/self", async(req,res)=>{
         res.status(401).send('Unauthorized')
     }
     else if(req.headers.authorization){
-        const cVal = req.headers.authorization;
+        const cVal = req.headers.authorization.split(" ")[1];
         const decodedAuthHeader = decodeBase64(cVal)
-        const unamePwd = decodedAuthHeader.split(" ")[1].split(":");
+        const unamePwd = decodedAuthHeader.split(":");
         const token_uname = unamePwd[0];
         const token_pwd = unamePwd[1];
         let qdb_uname;
@@ -57,10 +69,20 @@ app.get("/v1/user/self", async(req,res)=>{
         
         if(token_uname === qdb_uname){
             const isCorrectPwd = hashBcrypt.compareSync(token_pwd, qdb_pwd);
+            let responseVals;
             if(isCorrectPwd){
                 try{
-                    const queryGetUser = await pool.query(`SELECT firstname, lastname, emailid, datecreated, dateupdated from webserviceusers where emailid='${token_uname}'`);
-                    res.status(200).json(queryGetUser);
+                    const queryGetUser = await pool.query(`SELECT id, firstname, lastname, emailid, datecreated, dateupdated from webserviceusers where emailid='${token_uname}'`);
+                    responseVals = queryGetUser.rows[0];
+                    const respValues = {
+                        id:responseVals["id"],
+                        first_name:responseVals["firstname"],
+                        last_name:responseVals["lastname"],
+                        username:responseVals["emailid"],
+                        account_created:responseVals["datecreated"],
+                        account_upadted:responseVals["dateupdated"]
+                    }
+                    res.status(200).json(respValues);
                 }
                 catch(err){
                     console.log(err);
@@ -79,9 +101,9 @@ app.put("/v1/user/self", async(req, res)=>{
         res.status(401).send('Unauthorized')
     }
     else if(req.headers.authorization){
-        const chVal = req.headers.authorization;
+        const chVal = req.headers.authorization.split(" ")[1];
         const put_decodedAuthHeader = decodeBase64(chVal)
-        const put_unamePwd = put_decodedAuthHeader.split(" ")[1].split(":");
+        const put_unamePwd = put_decodedAuthHeader.split(":");
         const tokenPut_uname = put_unamePwd[0];
         const tokenPut_pwd = put_unamePwd[1];
         let qdbPut_uname;
@@ -103,9 +125,9 @@ app.put("/v1/user/self", async(req, res)=>{
                         res.status(400).send('Bad Requeest');
                     }
                     else{
-                        const rq_fname = req.body.firstname;
-                        const rq_lname = req.body.lastname;
-                        const rq_email = req.body.email;
+                        const rq_fname = req.body.first_name;
+                        const rq_lname = req.body.last_name;
+                        const rq_email = req.body.email_id;
                         const rq_password = req.body.password;
                         const rq_salt = hashBcrypt.genSaltSync(10);
                         const rq_hash = hashBcrypt.hashSync(rq_password, rq_salt);
