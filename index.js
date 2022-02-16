@@ -125,9 +125,9 @@ app.put("/v1/user/self", async(req, res)=>{
                         res.status(400).send('Bad Requeest');
                     }
                     else{
-                        const rq_fname = req.body.firstname;
-                        const rq_lname = req.body.lastname;
-                        const rq_email = req.body.email;
+                        const rq_fname = req.body.first_name;
+                        const rq_lname = req.body.last_name;
+                        const rq_email = req.body.email_id;
                         const rq_password = req.body.password;
                         const rq_salt = hashBcrypt.genSaltSync(10);
                         const rq_hash = hashBcrypt.hashSync(rq_password, rq_salt);
