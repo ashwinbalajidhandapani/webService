@@ -33,6 +33,7 @@ app.post("/v1/user", async(req,res, next)=>{
             account_updated:userCreatedVals["dateupdated"]
         }
         res.status(201).json(responseVals);
+
     } catch (err) {
         if (err.constraint === 'uemail'){
             res.status(400).send('Email already exists');
