@@ -26,7 +26,9 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
-  job:
+  aws-login:
+    name: aws-login
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Configure AWS Credentials
