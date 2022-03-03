@@ -1,10 +1,9 @@
 const express = require('express');
-const pool = require('./database');
+const pool = require('./models/database');
 const hashBcrypt = require('bcrypt');
-const { Pool } = require('pg');
-const { compareSync } = require('bcryptjs');
 const app = express();
 const port = process.env.PORT || 3000;
+const models = require('./models/index');
 
 
 app.use(express.json());
@@ -22,15 +21,16 @@ app.post("/v1/user", async(req,res, next)=>{
         const salt = hashBcrypt.genSaltSync(10);
         const hash = hashBcrypt.hashSync(password, salt);
         let userCreatedVals;
-        const queryAddUser = await pool.query(`INSERT INTO webserviceusers(emailid, firstname, lastname, password, datecreated, dateupdated) VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
-        const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, password, datecreated, dateupdated from webserviceusers where emailid='${email_id}'`);
+        const queryAddUser = await pool.query(`INSERT INTO users(emailid, firstname, lastname, password, "createdAt", "updatedAt") VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
+        const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, emailid, password, "createdAt", "updatedAt" from users where emailid='${email_id}'`);
         userCreatedVals = (await queryGetUserDetails).rows[0];
         const responseVals = {
             id:userCreatedVals["id"],
             first_name:userCreatedVals["firstname"],
             last_name:userCreatedVals["lastname"],
-            account_created:userCreatedVals["datecreated"],
-            account_updated:userCreatedVals["dateupdated"]
+            username:userCreatedVals["emailid"],
+            account_created:userCreatedVals["createdAt"],
+            account_updated:userCreatedVals["updatedAt"]
         }
         res.status(201).json(responseVals);
 
@@ -39,6 +39,7 @@ app.post("/v1/user", async(req,res, next)=>{
             res.status(400).send('Email already exists');
         }
         else{
+            console.log(err.Message)
             res.status(500).send(err.Message);
         }
     }
@@ -58,7 +59,7 @@ app.get("/v1/user/self", async(req,res)=>{
         let qdb_uname;
         let qdb_pwd;
         try{
-            const QueryDbDetails = pool.query(`SELECT emailid, password FROM webserviceusers where emailid='${token_uname}'`);
+            const QueryDbDetails = pool.query(`SELECT emailid, password FROM users where emailid='${token_uname}'`);
             qdb_uname = (await QueryDbDetails).rows[0]["emailid"]
             qdb_pwd = (await QueryDbDetails).rows[0]["password"]
         }
@@ -72,20 +73,20 @@ app.get("/v1/user/self", async(req,res)=>{
             let responseVals;
             if(isCorrectPwd){
                 try{
-                    const queryGetUser = await pool.query(`SELECT id, firstname, lastname, emailid, datecreated, dateupdated from webserviceusers where emailid='${token_uname}'`);
+                    const queryGetUser = await pool.query(`SELECT id, firstname, lastname, emailid, "createdAt", "updatedAt" from users where emailid='${token_uname}'`);
                     responseVals = queryGetUser.rows[0];
                     const respValues = {
                         id:responseVals["id"],
                         first_name:responseVals["firstname"],
                         last_name:responseVals["lastname"],
                         username:responseVals["emailid"],
-                        account_created:responseVals["datecreated"],
-                        account_upadted:responseVals["dateupdated"]
+                        account_created:responseVals["createdAt"],
+                        account_upadted:responseVals["updatedAt"]
                     }
                     res.status(200).json(respValues);
                 }
                 catch(err){
-                    console.log(err);
+                    res.status(401).send('Unauthorized')
                 }
             }
             else{
@@ -109,7 +110,7 @@ app.put("/v1/user/self", async(req, res)=>{
         let qdbPut_uname;
         let qdbPut_pwd;
         try{
-            const QueryDbDetailsPut = pool.query(`SELECT emailid, password FROM webserviceusers where emailid='${tokenPut_uname}'`);
+            const QueryDbDetailsPut = pool.query(`SELECT emailid, password FROM users where emailid='${tokenPut_uname}'`);
             qdbPut_uname = (await QueryDbDetailsPut).rows[0]["emailid"]
             qdbPut_pwd = (await QueryDbDetailsPut).rows[0]["password"]
         }
@@ -131,8 +132,8 @@ app.put("/v1/user/self", async(req, res)=>{
                         const rq_password = req.body.password;
                         const rq_salt = hashBcrypt.genSaltSync(10);
                         const rq_hash = hashBcrypt.hashSync(rq_password, rq_salt);
-                        const queryUpdateUser = await pool.query(`UPDATE webserviceusers SET firstname='${rq_fname}', lastname='${rq_lname}', emailid='${rq_email}', password='${rq_hash}', dateupdated=current_timestamp WHERE emailid ='${tokenPut_uname}'`);
-                        res.status(200).send('Success')
+                        const updateQuery = await pool.query(`UPDATE users SET firstname='${rq_fname}', lastname='${rq_lname}', emailid='${rq_email}', password='${rq_hash}', "updatedAt"=current_timestamp WHERE emailid ='${tokenPut_uname}'`);
+                        res.send(204).send("")    
                     } 
                 }
                 catch(err){
@@ -156,6 +157,9 @@ app.get('/healthz', (req, res)=>{
     });
 });
 
+models.sequelize.sync().then((x) => {
+    console.log('### Database Resynced !! ###');
+});
 
 
 const server = app.listen(port, ()=> console.log(`Listening on port ${port}`));
