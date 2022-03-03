@@ -54,7 +54,7 @@ echo "########################"
 echo "#### Installing Git ####"
 echo "########################"
 
-sudo yum install git
+sudo yum install git -y
 sleep 30
 
 mkdir webService
