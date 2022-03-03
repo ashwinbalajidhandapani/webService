@@ -52,11 +52,7 @@ echo "#### Installing Git ####"
 echo "########################"
 
 sudo yum install git -y
-sleep 30
-
-mkdir webService
-cd webService
-echo "#######Cloning using HTTPS########"
+sleep 15
 git clone https://dhandapani.as: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@github.com/ashwinBalajiDhadapani-org/webService.git
 cd webService
 npm install
