@@ -9,7 +9,7 @@ packer{
 }
 
 source "amazon-ebs" "webServiceAMI"{
-    ami_name = "webServiceAMI_test9"
+    ami_name = "webServiceAMI_test"
     source_ami = "ami-0661cd3308ec33aaa"
     instance_type= "t2.micro"
     region = "us-east-2"
