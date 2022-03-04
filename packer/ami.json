@@ -48,10 +48,10 @@
                 "mkdir /home/ec2-user/node_app",
                 "chown ec2-user:ec2-user /home/ec2-user/node_app",
                 "passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})",
-                "mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'c$yE6225Cloud';\"",
-                "mysql -u root -pc$yE6225Cloud -e \"create database webapp;\"",
-                "mysql -u root -pc$yE6225Cloud -e  \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'c$yE6225Cloud';\"",
-                "mysql -u root -pc$yE6225Cloud -e \"flush privileges;\""
+                "mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'Hello@1234';\"",
+                "mysql -u root -pHello@1234 -e \"create database webapp;\"",
+                "mysql -u root -pHello@1234 -e  \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Hello@1234';\"",
+                "mysql -u root -pHello@1234 -e \"flush privileges;\""
 
             ]
         },
