@@ -21,8 +21,8 @@ app.post("/v1/user", async(req,res, next)=>{
         const salt = hashBcrypt.genSaltSync(10);
         const hash = hashBcrypt.hashSync(password, salt);
         let userCreatedVals;
-        const queryAddUser = await pool.query(`INSERT INTO users(emailid, firstname, lastname, password, "createdAt", "updatedAt") VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
-        const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, emailid, password, "createdAt", "updatedAt" from users where emailid='${email_id}'`);
+        const queryAddUser = await pool.query(`INSERT INTO users(emailid, firstname, lastname, password, createdAt, updatedAt) VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
+        const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, emailid, password, createdAt, updatedAt from users where emailid='${email_id}'`);
         userCreatedVals = (await queryGetUserDetails).rows[0];
         const responseVals = {
             id:userCreatedVals["id"],
@@ -73,7 +73,7 @@ app.get("/v1/user/self", async(req,res)=>{
             let responseVals;
             if(isCorrectPwd){
                 try{
-                    const queryGetUser = await pool.query(`SELECT id, firstname, lastname, emailid, "createdAt", "updatedAt" from users where emailid='${token_uname}'`);
+                    const queryGetUser = await pool.query(`SELECT id, firstname, lastname, emailid, createdAt, updatedAt from users where emailid='${token_uname}'`);
                     responseVals = queryGetUser.rows[0];
                     const respValues = {
                         id:responseVals["id"],
@@ -132,7 +132,7 @@ app.put("/v1/user/self", async(req, res)=>{
                         const rq_password = req.body.password;
                         const rq_salt = hashBcrypt.genSaltSync(10);
                         const rq_hash = hashBcrypt.hashSync(rq_password, rq_salt);
-                        const updateQuery = await pool.query(`UPDATE users SET firstname='${rq_fname}', lastname='${rq_lname}', emailid='${rq_email}', password='${rq_hash}', "updatedAt"=current_timestamp WHERE emailid ='${tokenPut_uname}'`);
+                        const updateQuery = await pool.query(`UPDATE users SET firstname='${rq_fname}', lastname='${rq_lname}', emailid='${rq_email}', password='${rq_hash}', updatedAt=current_timestamp WHERE emailid ='${tokenPut_uname}'`);
                         res.send(204).send("")    
                     } 
                 }
