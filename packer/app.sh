@@ -20,12 +20,14 @@ systemctl status mysqld
 echo "###########################"
 echo "#########step -5###########"
 echo "###########################"
-passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})
-echo "###########################"
-echo "#########step -6###########"
-echo "###########################"
 mkdir /home/ec2-user/node_app
 chown ec2-user:ec2-user /home/ec2-user/node_app
+echo "###########directory Created####################"
+# passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})
+# echo "###########################"
+# echo "#########step -6###########"
+# echo "###########################"
+
 # mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'webservice';\"
 # echo "###########################"
 # echo "#########step -7###########"

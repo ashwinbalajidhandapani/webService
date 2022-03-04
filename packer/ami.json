@@ -51,7 +51,7 @@
             "type": "shell",
             "inline": [
                 "echo '######cd -ing into the webService app directory#####'",
-                "cd /home/ec2-user/node_app/webService",
+                "cd /home/ec2-user/node_app/",
                 "echo '######Running npm install command#####'",
                 "sudo npm install",
                 "echo '######starting app using pm2#####'",
@@ -61,7 +61,7 @@
                 "echo '######saving state#####'",
                 "sudo pm2 save",
                 "echo '######Linking files#####'",
-                "sudo ln -s /home/ec2-user/webservice_app/node-service.service /etc/systemd/system/node-service.service",
+                "sudo ln -s /home/ec2-user/node_app/node-service.service /etc/systemd/system/node-service.service",
                 "echo '######running daemon-reload as systemctl#####'",
                 "sudo systemctl daemon-reload",
                 "echo '######Enabling node-service#####'",
