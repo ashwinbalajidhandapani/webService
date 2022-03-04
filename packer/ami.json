@@ -45,13 +45,13 @@
         {
             "type" : "file",
             "source" : "./",
-            "destination": "/home/ec2-user/webservice_app"
+            "destination": "/home/ec2-user/node_app"
         },
         {
             "type": "shell",
             "inline": [
                 "echo '######cd -ing into the webService app directory#####'",
-                "cd /home/ec2-user/webservice_app",
+                "cd /home/ec2-user/node_app",
                 "echo '######Running npm install command#####'",
                 "sudo npm install",
                 "echo '######starting app using pm2#####'",
