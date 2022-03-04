@@ -51,6 +51,7 @@
                 "sudo systemctl daemon-reload",
                 "sudo systemctl enable node-service.service",
                 "sudo systemctl start node-service.service"
+            ]
         }
     ]
 }
