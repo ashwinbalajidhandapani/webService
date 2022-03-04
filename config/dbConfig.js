@@ -1,7 +1,7 @@
 module.exports = {
     HOST: "127.0.0.1",
     USER: "root",
-    PASSWORD: "webservice",
+    PASSWORD: "c$yE6225Cloud",
     DB: "webapp",
     dialect: "mysql",
     port: 3306,
