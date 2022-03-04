@@ -52,7 +52,6 @@
                 "mysql -u root -pc$yE6225Cloud -e \"create database webapp;\"",
                 "mysql -u root -pc$yE6225Cloud -e  \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'c$yE6225Cloud';\"",
                 "mysql -u root -pc$yE6225Cloud -e \"flush privileges;\""
-
             ]
         },
         {
