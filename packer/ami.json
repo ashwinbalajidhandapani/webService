@@ -51,7 +51,7 @@
             "type": "shell",
             "inline": [
                 "echo '######cd -ing into the webService app directory#####'",
-                "cd /home/ec2-user/node_app",
+                "cd /home/ec2-user/node_app/webService",
                 "echo '######Running npm install command#####'",
                 "sudo npm install",
                 "echo '######starting app using pm2#####'",
