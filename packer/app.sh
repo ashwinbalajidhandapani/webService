@@ -24,10 +24,11 @@ passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13
 echo "###########################"
 echo "#########step -6###########"
 echo "###########################"
+mkdir /home/ec2-user/node-app
+chown ec2-user:ec2-user /home/ec2-user/node_app
 # mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'webservice';\"
 # echo "###########################"
 # echo "#########step -7###########"
 # echo "###########################"
 # mysql -u root -pwebservice -e \"create database webapp;\"
-mkdir /home/ec2-user/node-app
-chown ec2-user:ec2-user /home/ec2-user/node-app
+
