@@ -35,7 +35,7 @@ app.post("/v1/user", async(req,res, next)=>{
         res.status(201).json(responseVals);
 
     } catch (err) {
-        if (err.constraint === 'uemail'){
+        if (err.code === 'ER_DUP_ENTRY'){
             res.status(400).send('Email already exists');
         }
         else{

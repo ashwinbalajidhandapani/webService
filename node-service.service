@@ -1,0 +1,13 @@
+[Unit]
+Description=index.js - node service file presents the environment file to be consumed as a service
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+ExecStart=/usr/bin/node /home/ubuntu/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

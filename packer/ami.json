@@ -19,7 +19,38 @@
     "provisioners":[
         {
             "type":"shell",
+            "inline":[
+                "sudo yum update -y",
+                "sudo yum install git -y",
+                "sudo amazon-linux-extras install epel",
+                "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash",
+                ". ~/.nvm/nvm.sh",
+                "curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - ",
+                "sudo yum install -y nodejs",
+                "sudo npm install -g pm2"
+            ]
+        },
+        {
+            "type":"shell",
             "script":"app.sh"
+        },
+        {
+            "type" : "file",
+            "source" : "./",
+            "destination": "/home/ec2-user/webservice_app"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "cd /home/ec2-user/webservice_app",
+                "sudo npm install",
+                "sudo pm2 start index.js",
+                "sudo pm2 startup systemd",
+                "sudo pm2 save",
+                "sudo ln -s /home/ec2-user/webservice_app/node-service.service /etc/systemd/system/node-service.service",
+                "sudo systemctl daemon-reload",
+                "sudo systemctl enable node-service.service",
+                "sudo systemctl start node-service.service"
         }
     ]
 }
