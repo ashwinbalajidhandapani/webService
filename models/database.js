@@ -1,12 +1,13 @@
 const mySql = require('mysql');
+const config = require('../config/dbConfig');
 
 const pool = mySql.createPool({
     connectionLimit: 100,
-    user:'csye6225',
-    password:'admin123',
-    database:'csye6225',
-    host:'csye6225.ceqcujguktqu.us-east-2.rds.amazonaws.com',
-    port:"3306"
+    user:config.USER,
+    password:config.PASSWORD,
+    database:config.DB,
+    host:config.HOST,
+    port:config.port
 });
 
 module.exports = pool;
