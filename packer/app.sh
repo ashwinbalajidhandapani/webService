@@ -1,49 +1,26 @@
-echo "######script start######"
-echo "######Installing MySQL######"
-# Installing MYSQL
-echo "###########################"
-echo "#########step -1###########"
-echo "###########################"
-sudo yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
-echo "###########################"
-echo "#########step -2###########"
-echo "###########################"
-sudo yum -y install mysql-community-server
-echo "###########################"
-echo "#########step -3###########"
-echo "###########################"
-sudo systemctl enable --now mysqld
-echo "###########################"
-echo "#########step -4###########"
-echo "###########################"
-systemctl status mysqld
-echo "###########################"
-echo "#########step -5###########"
-echo "###########################"
-mkdir /home/ec2-user/node_app
-chown ec2-user:ec2-user /home/ec2-user/node_app
-echo "###########directory Created####################"
-passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})
-# echo "###########################"
-# echo "#########step -6###########"
-# echo "###########################"
+sleep 30
+sudo yum update -y
+sudo yum install git -y
+sudo amazon-linux-extras install epel
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+. ~/.nvm/nvm.sh
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - 
+sudo yum install -y nodejs 
+sudo npm install -g pm2
 
+# sudo yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+# sudo yum -y install mysql-community-server
+# sudo systemctl enable --now mysqld
+# systemctl status mysqld
+# pass=$(sudo grep 'temporary password' /var/log/mysqld.log | awk '{print $13}')
+# mysql -u root --password=$pass-e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'hello123'; flush privileges;" --connect-expired-password
+# sudo yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+# # sudo amazon-linux-extras install epel
+# sudo yum -y install mysql-community-server
+# sudo systemctl enable --now mysqld
+# systemctl status mysqld
 # passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})
-# echo "###########################"
-# echo "#########step -6###########"
-# echo "###########################"
-
-# mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'webservice';\"
-# echo "###########################"
-# echo "#########step -7###########"
-# echo "###########################"
-# mysql -u root -pwebservice -e \"create database webapp;\"
-
-
-mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'webservice';\"
-# echo "###########################"
-# echo "#########step -7###########"
-# echo "###########################"
-mysql -u root -pwebservice -e \"create database webapp;\"
-"mysql -u root -pHello@1234 -e  \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Hello@1234';\"",
-"mysql -u root -pHello@1234 -e \"flush privileges;\""
+# mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'Elgsid@1234';\"
+# mysql -u root -pAshwin@Kumar123 -e \"create database userdetails;\"
+mkdir /home/ec2-user/node-app
+chown ec2-user:ec2-user /home/ec2-user/node-app

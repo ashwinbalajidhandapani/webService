@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const models = require('./models/index');
 const multiparty = require('multiparty');
 const multer = require('multer');
-const { resolve } = require('path/posix');
+// const { resolve } = require('path/posix');
 const {
     uploadFile,
     deleteFile,
