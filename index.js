@@ -25,6 +25,7 @@ const {
     check,
     validationResult
 } = require('express-validator');
+const imageUploader = require('./image-uploader');
 app.use(express.json());
 
 function decodeBase64(inpString) {
