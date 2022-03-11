@@ -22,5 +22,6 @@ const models = {};
 models.Sequelize = Sequelize;
 models.sequelize = sequelize;
 models.user = require('../models/user.model')(sequelize, Sequelize);
+models.images = require('../models/images.model')(sequelize, Sequelize);
 
 module.exports = models;

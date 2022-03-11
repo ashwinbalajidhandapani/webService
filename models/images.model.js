@@ -1,28 +1,28 @@
 module.exports = (sequelize, DataTypes)=>{
-    const User = sequelize.define("users", {
+    const Images = sequelize.define("images", {
       id: {
         allowNull: false,
         autoIncrement: true,
         type: DataTypes.INTEGER,
         primaryKey:true,
       },
-      emailid: {
-        type: DataTypes.STRING,
-        allowNull:false,
-        unique: true
-      },
-      firstname: {
+      user_id: {
         type: DataTypes.STRING,
         allowNull:false,
       },
-      lastname: {
+      filename: {
         type: DataTypes.STRING,
         allowNull:false,
       },
-      password: {
+      url: {
         type: DataTypes.STRING,
         allowNull:false,
+      },
+      upload_date: {
+          type: 'TIMESTAMP',
+          allowNull: false,
+          default: DataTypes.literal('CURRENT_TIMESTAMP')
       }
     });
-    return User;
+    return Images;
   }

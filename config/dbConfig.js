@@ -1,10 +1,10 @@
 module.exports = {
-    HOST: "127.0.0.1",
-    USER: "root",
-    PASSWORD: "c$yE6225Cloud",
-    DB: "webapp",
+    HOST: "csye6225.ceqcujguktqu.us-east-2.rds.amazonaws.com",
+    USER: "csye6225",
+    PASSWORD: "admin123",
+    DB: "csye6225",
     dialect: "mysql",
-    port: 3306,
+    port: "3306",
     pool: {
         max: 5,
         min: 0,
