@@ -278,8 +278,27 @@ app.put("/v1/user/self", async (req, res) => {
                                 return resolve(result);
                             });
                         }));
+
+                        const userDetailsImageInsert = await(new Promise((resolve, reject)=>{
+                            pool.query(`SELECT filename, id, url, user_id, upload_date from images where user_id='${tokenUserId}'`, (err, result)=>{
+                                if(err){
+                                    console.log('Error: '+err);
+                                    res.status(401).send('Unauthorized');
+                                    return reject(err)
+                                }
+                                return resolve(result)
+                            });
+                        }));
                     }
-                    res.status(200).send('Image Uploaded Completed')
+                    const response = userDetailsImageInsert[0];
+                    const jResp = {
+                        file_name:response['filename'],
+                        id:response['id'],
+                        url:response['url'],
+                        upload_date:response['upload_date'],
+                        user_id:response['user_id']
+                    }
+                    res.status(200).json(jResp)
                     }
                  } catch (error) {
                      console.log(error);
@@ -387,7 +406,7 @@ app.delete("/v1/user/self/pic",
                                         res.status(401).send('Unauthorized');
                                         return reject(err);
                                     }
-                                    return resolve(err);
+                                    return resolve(result);
                                 }); 
                             }));                            
                             if(!querydeleteImageDtl){
@@ -404,7 +423,7 @@ app.delete("/v1/user/self/pic",
                                         res.send(401).send('Unauthorized');
                                         return reject(err);
                                     }
-                                    return resolve(err);
+                                    return resolve(result);
                                 });
                             }));
                         }

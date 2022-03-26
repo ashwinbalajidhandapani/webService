@@ -2,8 +2,8 @@ require('dotenv').config()
 const fs = require('fs')
 const S3 = require('aws-sdk/clients/s3')
 
-const bucket = process.env.AWS_BUCKET_NAME
-const region = process.env.AWS_BUCKET_REGION
+const bucket = process.env.S3_BUCKET_NAME
+const region = process.env.S3_BUCKET_REGION
 const accessKeyId = process.env.AWS_ACCESS_KEY
 const secretAccessKey = process.env.AWS_SECRET_KEY
 
@@ -32,7 +32,7 @@ exports.uploadFile = uploadFile
 function getFileStream(fileKey) {
   const downloadParams = {
     Key: fileKey,
-    Bucket: bucketName
+    Bucket: bucket
   }
 
   return s3.getObject(downloadParams).createReadStream()
@@ -43,7 +43,7 @@ exports.getFileStream = getFileStream
 function deleteFile(fileKey) {
     const downloadParams = {
       Key: fileKey,
-      Bucket: bucketName
+      Bucket: bucket
     }
   
     return s3.deleteObject(downloadParams).createReadStream()
