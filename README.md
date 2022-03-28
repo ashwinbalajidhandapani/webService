@@ -56,3 +56,5 @@ Email - dhandapani.as@northeastern.edu
 18. account_updated field for the user should be updated when the user update is successful.
 19. A user can only update their own account information.
 20. Get user information, As a user, I want to get my account information. Response payload should return all fields for the user except for password.
+
+Test 1
