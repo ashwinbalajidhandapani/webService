@@ -8,4 +8,3 @@ sudo pm2 save
 sudo ln -sf /home/ec2-user/node_app/node-service.service /etc/systemd/system/node-service.service
 sudo systemctl daemon-reload
 sudo systemctl start node-service.service
-# sudo systemctl start amazon-cloudwatch-agent.service
