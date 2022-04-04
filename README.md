@@ -31,3 +31,5 @@
 20. Get user information, As a user, I want to get my account information. Response payload should return all fields for the user except for password.
 
 Test 1
+
+assignment 6 review
