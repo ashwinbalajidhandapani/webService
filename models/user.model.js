@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes)=>{
       password: {
         type: DataTypes.STRING,
         allowNull:false,
+      },
+      isverified: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "Not Verified"
       }
     });
     return User;
