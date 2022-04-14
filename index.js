@@ -30,6 +30,7 @@ const {
     validationResult
 } = require('express-validator');
 const imageUploader = require('./image-uploader');
+const { resolve } = require('path/posix');
 app.use(express.json());
 
 function decodeBase64(inpString) {
@@ -39,19 +40,19 @@ function decodeBase64(inpString) {
 }
 
 
-function isVerifiedUser(userName){
-    const queryValidateIfVerified = await(new Promise((resolve, reject)=>{
-        pool.query(`SELECT isverified from users where emailid=${userName}`, (err, result)=>{
-            if(err){
-                console.log('Not a verfied User');
-                reject(err);
-            }
-            resolve(result)
-        })
-    }));
-    return queryValidateIfVerified[0][0];
+// function isVerifiedUser(userName){
+//     const queryValidateIfVerified = (new Promise((resolve, reject)=>{
+//         pool.query(`SELECT isverified from users where emailid='${userName}'`, (err, result)=>{
+//             if(err){
+//                 console.log('Not a verfied User');
+//                 reject(err);
+//             }
+//             resolve(result)
+//         })
+//     }));
+//     return queryValidateIfVerified[0][0];
 
-}
+// }
 
 // Adding a user (Unauthenticated)
 app.post("/v1/user", async (req, res, next) => {
@@ -165,10 +166,22 @@ app.get("/v1/user/self", async (req, res) => {
         const token_pwd = unamePwd[1];
         let qdb_uname;
         let qdb_pwd;
-        if(isVerifiedUser(token_uname)==='Not Verified'){
+        const queryValidateIfVerified = await (new Promise((resolve, reject)=>{
+            pool.query(`SELECT isverified from users where emailid='${token_uname}'`, (err, result)=>{
+                if(err){
+                    console.log('Not a verfied User');
+                    reject(err);
+                }
+                resolve(result)
+            })
+        }));
+        console.log(queryValidateIfVerified)
+        console.log(queryValidateIfVerified[0][0])
+        console.log(queryValidateIfVerified[0]["isverified"])
+        if(queryValidateIfVerified[0]["isverified"]==='Not Verified'){
             res.status(401).send('Unauthorized');
         }
-        else if(isVerifiedUser(token_uname)==='verified'){
+        else if(queryValidateIfVerified[0]["isverified"]==='verified'){
         const userVerificationDetails = await (new Promise((resolve, reject) => {
             pool.query(`SELECT emailid, password FROM users where emailid='${token_uname}'`,
                 (err, results) => {
@@ -236,10 +249,19 @@ app.put("/v1/user/self", async (req, res) => {
         const tokenPut_pwd = put_unamePwd[1];
         let qdbPut_uname;
         let qdbPut_pwd;
-        if(isVerifiedUser(tokenPut_uname)==='Not Verified'){
+        const queryValidateIfVerified = await (new Promise((resolve, reject)=>{
+            pool.query(`SELECT isverified from users where emailid='${tokenPut_uname}'`, (err, result)=>{
+                if(err){
+                    console.log('Not a verfied User');
+                    reject(err);
+                }
+                resolve(result)
+            })
+        }));
+        if(queryValidateIfVerified[0]["isverified"]==='Not Verified'){
             res.status(401).send('Unauthorized');
         }
-        else if(isVerifiedUser(tokenPut_uname)==='verified'){
+        else if(queryValidateIfVerified[0]["isverified"]==='verified'){
         const QueryDbDetailsPut = await (new Promise((resolve, reject) => {
             pool.query(`SELECT emailid, password FROM users where emailid='${tokenPut_uname}'`, (err, result)=>{
                 if(err){
@@ -311,10 +333,19 @@ app.put("/v1/user/self", async (req, res) => {
         let tokenUsernameDcrypt;
         let tokenPasswordDcrypt;
         let tokenUserId;
-        if(isVerifiedUser(tokenUsernameUpdated)==='Not Verified'){
+        const queryValidateIfVerified = await (new Promise((resolve, reject)=>{
+            pool.query(`SELECT isverified from users where emailid='${tokenPut_uname}'`, (err, result)=>{
+                if(err){
+                    console.log('Not a verfied User');
+                    reject(err);
+                }
+                resolve(result)
+            })
+        }));
+        if(queryValidateIfVerified[0]["isverified"]==='Not Verified'){
             res.status(401).send('Unauthorized');
         }
-        else if(isVerifiedUser(tokenUsernameUpdated)==='verified'){
+        else if(queryValidateIfVerified[0]["isverified"]==='verified'){
          const queryDbDetails = await (new Promise((resolve, reject) => {
             pool.query(`SELECT id, emailid, password FROM users where emailid='${tokenUsernameUpdated}'`, (err, result)=>{
                 if(err){
@@ -423,10 +454,19 @@ app.put("/v1/user/self", async (req, res) => {
         const authTokenPassword = usernamePassword[1];
         let usernameDeCrypt;
         let passwordDecrypt;
-        if(isVerifiedUser(authTokenUsername)==='Not Verified'){
+        const queryValidateIfVerified = await(new Promise((resolve, reject)=>{
+            pool.query(`SELECT isverified from users where emailid='${tokenPut_uname}'`, (err, result)=>{
+                if(err){
+                    console.log('Not a verfied User');
+                    reject(err);
+                }
+                resolve(result)
+            })
+        }));
+        if(queryValidateIfVerified[0]["isverified"]==='Not Verified'){
             response.status(401).send('Unauthorized')
         }
-        else if(isVerifiedUser(authTokenUsername)==='verified'){
+        else if(queryValidateIfVerified[0]["isverified"]==='verified'){
         const responseValues = await (new Promise((resolve, reject) => {
         pool.query(`SELECT id, emailid, password FROM users where emailid='${authTokenUsername}'`, (err, result)=>{
             if(err){
@@ -486,10 +526,19 @@ app.delete("/v1/user/self/pic",
             const tokenPasswordUpdated = usernamePasswordUpdated[1];
             let tokenUsernameDcrypt;
             let tokenPasswordDcrypt;
-            if(isVerifiedUser(tokenUsernameUpdated)==='Not Verified'){
+            const queryValidateIfVerified = await (new Promise((resolve, reject)=>{
+                pool.query(`SELECT isverified from users where emailid='${tokenPut_uname}'`, (err, result)=>{
+                    if(err){
+                        console.log('Not a verfied User');
+                        reject(err);
+                    }
+                    resolve(result)
+                })
+            }));
+            if(queryValidateIfVerified[0]["isverified"]==='Not Verified'){
                 return res.status(401).send('Unauthorized')
             }
-            else if(isVerifiedUser(tokenUsernameUpdated)==='verified'){
+            else if(queryValidateIfVerified[0]["isverified"]==='verified'){
             const queryDbDetails = await(new Promise((resolve, reject)=>{
                 pool.query(`SELECT emailid, password,id FROM users where emailid='${tokenUsernameUpdated}'`, (err, result)=>{
                     if(err){
@@ -574,8 +623,18 @@ app.get("/v1/user/verifyUserEmail", async (req, res) => {
     let email = req.query.email
     let token = req.query.token
 
-    const queryDbDetails = await pool.query(`SELECT emailid, password, id FROM users where emailid='${email}'`);
-    if (!queryDbDetails[0][0]) {
+    const queryDbDetails = await(new Promise((resolve, reject)=>{
+        pool.query(`SELECT emailid, password, id FROM users where emailid='${email}'`, (err,result)=>{
+            if(err){
+                console.log(err);
+                res.send(400).send('Unauthorized');
+                return reject(err);
+            }
+            return resolve(result)
+        })
+    }));
+
+    if (!queryDbDetails[0]["emailid"]) {
         return res.status(400).send({
             message: "Username does not exist"
         });
@@ -596,15 +655,25 @@ app.get("/v1/user/verifyUserEmail", async (req, res) => {
           console.log(
             `[INFO]: User verification token retrieved from DynamoDB`
           );
-          console.log("---------------------------"+getResponseItem.Item.ttl.N);
-          console.log("token1 : "+token+":");
-          console.log("token2 : "+getResponseItem.Item.token.S+":");
-          console.log("getResponseItem.Item.token.S === token : "+getResponseItem.Item.token.S == token);
-          console.log("Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N : "+Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N );
-          console.log("Math.floor(Date.now()/1000) : "+ Math.floor(Date.now()/1000 ));
-          console.log("getResponseItem.Item.ttl.N : "+ getResponseItem.Item.ttl.N );
+        //   console.log("---------------------------"+getResponseItem.Item.ttl.N);
+        //   console.log("token1 : "+token+":");
+        //   console.log("token2 : "+getResponseItem.Item.token.S+":");
+        //   console.log("getResponseItem.Item.token.S === token : "+getResponseItem.Item.token.S == token);
+        //   console.log("Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N : "+Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N );
+        //   console.log("Math.floor(Date.now()/1000) : "+ Math.floor(Date.now()/1000 ));
+        //   console.log("getResponseItem.Item.ttl.N : "+ getResponseItem.Item.ttl.N );
+        console.log(email)
           if ((getResponseItem.Item.token.S.trim() == token.trim())&& (Math.floor(Date.now()/1000) < parseInt(getResponseItem.Item.ttl.N))) {
-            const queryUpdateUser =  pool.query(`UPDATE users SET isverified='verified' WHERE username ='${email}'`);                            
+            const queryUpdateUser = await (new Promise((resolve, reject)=>{
+                pool.query(`UPDATE users SET isverified ='verified' WHERE username ='${email}'`, (err,result)=>{
+                    if(err){
+                        console.log('Failed to update '+err);
+                        res.send('500')
+                        return reject(err)
+                    }
+                    resolve(result)
+                })
+            }))                            
             res.status(204).send();
           } else {
             console.log(`[ERROR]: Token mismatch`);
