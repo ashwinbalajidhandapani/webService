@@ -438,7 +438,7 @@ app.delete("/v1/user/self/pic",
     });
 
 // Endpoint created for assignment 1
-app.get('/healthz', (req, res) => {
+app.get('/health', (req, res) => {
     console.log('Health Endpoint')
     res.set({
         "readOnly": "true"
