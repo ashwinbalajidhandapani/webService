@@ -2,7 +2,7 @@ name: Packer AMI - S3 Artifact - codeDeploy
 
 on:
   push:
-    branches: [main]
+    branches: [test]
 
 jobs:
   packer:
