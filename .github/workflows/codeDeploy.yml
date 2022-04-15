@@ -37,6 +37,6 @@
             aws deploy create-deployment \
             --application-name csye6225-webapp \
             --deployment-config-name CodeDeployDefault.AllAtOnce \
-            --deployment-group-name csye6225-webapp-deployment \
+            --deployment-group-name csye6225_webapp_deployment_group \
             --file-exists-behavior OVERWRITE \
             --s3-location bucket=${{ secrets.S3_BUCKETNAME }},key=csye6225-webapp-${{ github.sha }}.zip,bundleType=zip \
