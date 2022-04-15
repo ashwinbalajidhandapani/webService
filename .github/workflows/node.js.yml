@@ -22,3 +22,18 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+  packer-build:
+    runs-on: ubuntu-latest
+    name: packer-build
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Packer build
+        uses: ExitoLab/packer_build_action_aws@v0.2.10
+        with:
+          templateFile: 'ami.json'
+          workingDir: 'packer'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
