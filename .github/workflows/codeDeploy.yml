@@ -2,7 +2,7 @@
 
   on:
     push:
-      branches: [test]
+      branches: [test1]
 
   jobs:
     publish-s3-artifact-and-deploy:
