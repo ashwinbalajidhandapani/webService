@@ -15,7 +15,7 @@ describe('healthz API', ()=>{
     // Testing the Status code of the API
     it("Validating the status code", (done)=>{
         chai.request(server)
-            .get('/healthz')
+            .get('/healthzsss11')
             .end((err, response)=>{
                 response.should.have.status(200);
                 done();
@@ -24,7 +24,7 @@ describe('healthz API', ()=>{
     //Testing the body of the API
     it("validating the response body", (done)=>{
         chai.request(server)
-        .get('/healthz')
+        .get('/healthzsss11')
         .end((err, response)=>{
             response.body.should.include(bodyMess);
             done();
