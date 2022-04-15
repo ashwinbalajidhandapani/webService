@@ -1,18 +1,30 @@
-version: 3.0
+version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user/webService
+    destination: /home/ec2-user/node-app
+permissions:
+  - object: /home/ec2-user/node-app
+    owner: ec2-user
+    group: ec2-user
 hooks:
   ApplicationStop:
-    location: scripts/application_stop.sh
-    timeout: 300
-    runas: ec2-user
+    - location: code-deploy/applicationStop.sh
+      timeout: 180
+      runas: ec2-user
   BeforeInstall:
-    location: scripts/before_install.sh
-    timeout: 300
-    runas: ec2-user
+    - location: code-deploy/beforeInstall.sh
+      timeout: 180
+      runas: ec2-user
+  AfterInstall:
+    - location: code-deploy/afterInstall.sh
+      timeout: 180
+      runas: ec2-user
   ApplicationStart:
-    location: scripts/application_start.sh
-    timeout: 300
-    runas: ec2-user
+    - location: code-deploy/applicationStart.sh
+      timeout: 180
+      runas: ec2-user
+  ValidateService:
+    - location: code-deploy/validateService.sh
+      timeout: 180
+      runas: root
