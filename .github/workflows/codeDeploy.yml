@@ -13,14 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # check template
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: validate
-          arguments: -syntax-only
-          target: ami.json
-
       # create ami
       - name: Build Artifact
         uses: hashicorp/packer-github-actions@master
