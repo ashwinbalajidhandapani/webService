@@ -24,7 +24,7 @@ describe('healthz API', ()=>{
     //Testing the body of the API
     it("validating the response body", (done)=>{
         chai.request(server)
-        .get('/healthz')
+        .get('/healthzsss11')
         .end((err, response)=>{
             response.body.should.include(bodyMess);
             done();
