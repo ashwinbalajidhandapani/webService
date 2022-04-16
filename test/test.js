@@ -16,6 +16,7 @@ describe('healthz API', ()=>{
     it("Validating the status code", (done)=>{
         chai.request(server)
             .get('/healthztest4')
+
             .end((err, response)=>{
                 response.should.have.status(200);
                 done();
