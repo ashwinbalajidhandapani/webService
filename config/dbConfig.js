@@ -4,6 +4,9 @@ module.exports = {
     PASSWORD: process.env.DB_PASSWORD || 'admin123',
     DB: process.env.DB_NAME || 'csye6225',
     dialect: "mysql",
+    dialectOptions:{
+        ssl: 'Amazon RDS'
+    },
     port: process.env.DB_PORT || 3306,
     pool: {
         max: 5,

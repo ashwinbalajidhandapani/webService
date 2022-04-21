@@ -37,7 +37,8 @@
                 "sudo ./install auto",
                 "sudo service codedeploy-agent start",
                 "wget https://s3.us-east-2.amazonaws.com/amazoncloudwatch-agent-us-east-2/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm",
-                "sudo rpm -U ./amazon-cloudwatch-agent.rpm"
+                "sudo rpm -U ./amazon-cloudwatch-agent.rpm",
+                "curl -O https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
             ]
         },
         {

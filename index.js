@@ -6,9 +6,11 @@ const port = process.env.PORT || 3000;
 const models = require('./models/index');
 const multiparty = require('multiparty');
 const multer = require('multer');
-const StatsD = require('node-statsd'),
+const StatsD = require('node-statsd');
+const crypto = require('crypto');
+const dynamo = require("./config/dynamodb.config");
+const sns = require("./config/sns.config");
 client = new StatsD();
-// const { resolve } = require('path/posix');
 const {
     uploadFile,
     deleteFile,
@@ -36,6 +38,21 @@ function decodeBase64(inpString) {
     return val;
 }
 
+
+function isVerifiedUser(userName){
+    const queryValidateIfVerified = await(new Promise((resolve, reject)=>{
+        pool.query(`SELECT isverified from users where emailid=${userName}`, (err, result)=>{
+            if(err){
+                console.log('Not a verfied User');
+                reject(err);
+            }
+            resolve(result)
+        })
+    }));
+    return queryValidateIfVerified[0][0];
+
+}
+
 // Adding a user (Unauthenticated)
 app.post("/v1/user", async (req, res, next) => {
     console.log("@@@ POST '/user/self/' @@@");
@@ -45,6 +62,10 @@ app.post("/v1/user", async (req, res, next) => {
         const salt = hashBcrypt.genSaltSync(10);
         const hash = hashBcrypt.hashSync(password, salt);
         let userCreatedVals;
+        console.log(first_name);
+        console.log(last_name);
+        console.log(email_id);
+        console.log(password);
         await pool.query(`INSERT INTO users(emailid, firstname, lastname, password, createdAt, updatedAt) VALUES('${email_id}', '${first_name}', '${last_name}', '${hash}', current_timestamp, current_timestamp)`);
         const queryGetUserDetails = pool.query(`SELECT id, firstname, lastname, emailid, password, createdAt, updatedAt from users where emailid='${email_id}'`, function (err, result) {
             if (err) {
@@ -61,6 +82,60 @@ app.post("/v1/user", async (req, res, next) => {
                     account_created: userCreatedVals["createdAt"],
                     account_updated: userCreatedVals["updatedAt"]
                 }
+                console.log('1');
+                const token = crypto.randomBytes(16).toString("hex")
+                //Add record in DynamoDB
+                console.log('2');
+                const putParams = {
+                    TableName: "TokenTable",
+                    Item: {
+                        username: { S: responseVals.username },
+                        token: { S: token },
+                        ttl: {N: (Math.floor(Date.now()/1000) + 300).toString()},
+                    }
+                };
+                console.log(putParams)
+                console.log('3');
+                dynamo.dynamoDBClient.putItem(putParams, (err, data) => {   
+                    if (err) {
+                    console.log('4:');
+                    console.error(`[ERROR]: ${err.message}`);
+                    res.status(504).send("1");
+                    } else {
+                    console.log('4');    
+                    console.log(
+                        `[INFO]: New user token uploaded to DynamoDB : ${token}`
+                    );
+                    //Publish in Amazon SNS
+                const message = {
+                    Message: `${responseVals} : ${token} : "String"`,
+                    TopicArn: "arn:aws:sns:us-east-2:184153566286:UserVerificationTopic",
+                    MessageAttributes: {
+                    'emailid': {
+                        DataType: 'String',
+                        StringValue: req.body.email_id
+                    },
+                    'token': {
+                        DataType: 'String',
+                        StringValue: token
+                    }
+                }
+                };
+                console.log('5');
+                console.log("message is: ", message);
+                
+                sns.publishTextPromise.publish(message).promise().then(function (snsData) {
+                    console.log('6');
+                    console.log(
+                        `[INFO]: Message ${message.Message} sent to the topic ${message.TopicArn}`
+                    );
+                    console.log("[INFO]: MessageID is " + snsData.MessageId);
+                    })
+                    .catch(function (err) {
+                    console.error(`[ERROR]: ${err.message}`);
+                    });
+                    }
+                });
                 res.status(201).json(responseVals)
             }
         });
@@ -80,7 +155,7 @@ app.get("/v1/user/self", async (req, res) => {
     console.log("@@@ GET '/user/self/' @@@");
     client.increment("GET '/user/self/");
     if (!req.headers.authorization) {
-        res.status(401).send('Unauthorized')
+        res.status(401).send('Unauthorized');
     }
     else if (req.headers.authorization) {
         const cVal = req.headers.authorization.split(" ")[1];
@@ -90,7 +165,10 @@ app.get("/v1/user/self", async (req, res) => {
         const token_pwd = unamePwd[1];
         let qdb_uname;
         let qdb_pwd;
-
+        if(isVerifiedUser(token_uname)==='Not Verified'){
+            res.status(401).send('Unauthorized');
+        }
+        else if(isVerifiedUser(token_uname)==='verified'){
         const userVerificationDetails = await (new Promise((resolve, reject) => {
             pool.query(`SELECT emailid, password FROM users where emailid='${token_uname}'`,
                 (err, results) => {
@@ -139,6 +217,8 @@ app.get("/v1/user/self", async (req, res) => {
         else {
             res.status(401).send('Unauthorized');
         }
+        }
+        
     }
 });
 
@@ -146,7 +226,7 @@ app.put("/v1/user/self", async (req, res) => {
     console.log("@@@ PUT '/user/self/' @@@");
     client.increment("PUT '/user/self/");
     if (!req.headers.authorization) {
-        res.status(401).send('Unauthorized')
+        res.status(401).send('Unauthorized');
     }
     else if (req.headers.authorization) {
         const chVal = req.headers.authorization.split(" ")[1];
@@ -156,6 +236,10 @@ app.put("/v1/user/self", async (req, res) => {
         const tokenPut_pwd = put_unamePwd[1];
         let qdbPut_uname;
         let qdbPut_pwd;
+        if(isVerifiedUser(tokenPut_uname)==='Not Verified'){
+            res.status(401).send('Unauthorized');
+        }
+        else if(isVerifiedUser(tokenPut_uname)==='verified'){
         const QueryDbDetailsPut = await (new Promise((resolve, reject) => {
             pool.query(`SELECT emailid, password FROM users where emailid='${tokenPut_uname}'`, (err, result)=>{
                 if(err){
@@ -197,6 +281,7 @@ app.put("/v1/user/self", async (req, res) => {
                 res.status(401).send('Unauthorized')
             }
         }
+        }
     }
 });
 
@@ -218,14 +303,18 @@ app.put("/v1/user/self", async (req, res) => {
      if (!req.headers.authorization) {
          return res.status(401).send('Unauthorized')
      } else if (req.headers.authorization) {
-         const valUpdateCheck = req.headers.authorization.split(" ")[1];
-         const authHeaderDecoded = decodeBase64(valUpdateCheck)
-         const usernamePasswordUpdated = authHeaderDecoded.split(":");
-         const tokenUsernameUpdated = usernamePasswordUpdated[0];
-         const tokenPasswordUpdated = usernamePasswordUpdated[1];
-         let tokenUsernameDcrypt;
-         let tokenPasswordDcrypt;
-         let tokenUserId;
+        const valUpdateCheck = req.headers.authorization.split(" ")[1];
+        const authHeaderDecoded = decodeBase64(valUpdateCheck)
+        const usernamePasswordUpdated = authHeaderDecoded.split(":");
+        const tokenUsernameUpdated = usernamePasswordUpdated[0];
+        const tokenPasswordUpdated = usernamePasswordUpdated[1];
+        let tokenUsernameDcrypt;
+        let tokenPasswordDcrypt;
+        let tokenUserId;
+        if(isVerifiedUser(tokenUsernameUpdated)==='Not Verified'){
+            res.status(401).send('Unauthorized');
+        }
+        else if(isVerifiedUser(tokenUsernameUpdated)==='verified'){
          const queryDbDetails = await (new Promise((resolve, reject) => {
             pool.query(`SELECT id, emailid, password FROM users where emailid='${tokenUsernameUpdated}'`, (err, result)=>{
                 if(err){
@@ -317,6 +406,7 @@ app.put("/v1/user/self", async (req, res) => {
                  res.status(401).send('Unauthorized')
              }
          }
+        }
      }
  });
 
@@ -333,6 +423,10 @@ app.put("/v1/user/self", async (req, res) => {
         const authTokenPassword = usernamePassword[1];
         let usernameDeCrypt;
         let passwordDecrypt;
+        if(isVerifiedUser(authTokenUsername)==='Not Verified'){
+            response.status(401).send('Unauthorized')
+        }
+        else if(isVerifiedUser(authTokenUsername)==='verified'){
         const responseValues = await (new Promise((resolve, reject) => {
         pool.query(`SELECT id, emailid, password FROM users where emailid='${authTokenUsername}'`, (err, result)=>{
             if(err){
@@ -374,6 +468,7 @@ app.put("/v1/user/self", async (req, res) => {
             response.status(401).send('Unauthorized')
         }
         }
+        }
     }
 });
 
@@ -391,6 +486,10 @@ app.delete("/v1/user/self/pic",
             const tokenPasswordUpdated = usernamePasswordUpdated[1];
             let tokenUsernameDcrypt;
             let tokenPasswordDcrypt;
+            if(isVerifiedUser(tokenUsernameUpdated)==='Not Verified'){
+                return res.status(401).send('Unauthorized')
+            }
+            else if(isVerifiedUser(tokenUsernameUpdated)==='verified'){
             const queryDbDetails = await(new Promise((resolve, reject)=>{
                 pool.query(`SELECT emailid, password,id FROM users where emailid='${tokenUsernameUpdated}'`, (err, result)=>{
                     if(err){
@@ -448,6 +547,7 @@ app.delete("/v1/user/self/pic",
                     res.status(401).send('Unauthorized')
                 }
             }
+            }
         }
     });
 
@@ -466,6 +566,57 @@ app.get('/healthz', (req, res) => {
 models.sequelize.sync().then((x) => {
     console.log('### Database Resynced !! ###');
 });
+
+// Endpoint created as part of Assignment 9
+// Used for User verification
+
+app.get("/v1/user/verifyUserEmail", async (req, res) => {
+    let email = req.query.email
+    let token = req.query.token
+
+    const queryDbDetails = await pool.query(`SELECT emailid, password, id FROM users where emailid='${email}'`);
+    if (!queryDbDetails[0][0]) {
+        return res.status(400).send({
+            message: "Username does not exist"
+        });
+    }
+    else{
+      //Get token from DynamoDB
+      const getParams = {
+        TableName: "TokenTable",
+        Key: {
+          username: { S: email },
+        },
+      };
+      dynamo.dynamoDBClient.getItem(getParams, (err, getResponseItem) => {
+        if (err) {
+         console.log(`[ERROR]: ${err.message}`);
+          res.status(504).send();
+        } else {
+          console.log(
+            `[INFO]: User verification token retrieved from DynamoDB`
+          );
+          console.log("---------------------------"+getResponseItem.Item.ttl.N);
+          console.log("token1 : "+token+":");
+          console.log("token2 : "+getResponseItem.Item.token.S+":");
+          console.log("getResponseItem.Item.token.S === token : "+getResponseItem.Item.token.S == token);
+          console.log("Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N : "+Math.floor(Date.now()/1000) < getResponseItem.Item.ttl.N );
+          console.log("Math.floor(Date.now()/1000) : "+ Math.floor(Date.now()/1000 ));
+          console.log("getResponseItem.Item.ttl.N : "+ getResponseItem.Item.ttl.N );
+          if ((getResponseItem.Item.token.S.trim() == token.trim())&& (Math.floor(Date.now()/1000) < parseInt(getResponseItem.Item.ttl.N))) {
+            const queryUpdateUser =  pool.query(`UPDATE users SET isverified='verified' WHERE username ='${email}'`);                            
+            res.status(204).send();
+          } else {
+            console.log(`[ERROR]: Token mismatch`);
+            res.status(400).json({
+              success: false,
+              message: "DDB Token and Params Token mismatch",
+            });
+          }
+        }
+      });
+    }
+  });
 
 
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
