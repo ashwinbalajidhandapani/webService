@@ -6,6 +6,8 @@ const port = process.env.PORT || 3000;
 const models = require('./models/index');
 const multiparty = require('multiparty');
 const multer = require('multer');
+const StatsD = require('node-statsd'),
+client = new StatsD();
 // const { resolve } = require('path/posix');
 const {
     uploadFile,
@@ -36,6 +38,8 @@ function decodeBase64(inpString) {
 
 // Adding a user (Unauthenticated)
 app.post("/v2/user", async (req, res, next) => {
+    console.log("@@@ POST '/user/self/' @@@");
+    client.increment("POST '/user/self/");
     try {
         const { first_name, last_name, email_id, password } = req.body;
         const salt = hashBcrypt.genSaltSync(10);
@@ -73,6 +77,8 @@ app.post("/v2/user", async (req, res, next) => {
 });
 
 app.get("/v2/user/self", async (req, res) => {
+    console.log("@@@ GET '/user/self/' @@@");
+    client.increment("GET '/user/self/");
     if (!req.headers.authorization) {
         res.status(401).send('Unauthorized')
     }
@@ -137,6 +143,8 @@ app.get("/v2/user/self", async (req, res) => {
 });
 
 app.put("/v2/user/self", async (req, res) => {
+    console.log("@@@ PUT '/user/self/' @@@");
+    client.increment("PUT '/user/self/");
     if (!req.headers.authorization) {
         res.status(401).send('Unauthorized')
     }
@@ -195,6 +203,8 @@ app.put("/v2/user/self", async (req, res) => {
 // Assignment 5
  app.post("/v2/user/self/pic", upload.single('file_name'),
  async (req, res) => {
+    console.log("@@@ POST '/user/self/pic' @@@");
+    client.increment("POST '/user/self/pic");
      const file = req.file   
      const description = req.body.description
      var form = new multiparty.Form();
@@ -311,6 +321,8 @@ app.put("/v2/user/self", async (req, res) => {
  });
 
  app.get("/v2/user/self/pic", async (request, response) => {
+    console.log("@@@ GET '/user/self/pic' @@@");
+    client.increment("GET '/user/self/pic");
     if (!request.headers.authorization) {
         response.status(401).send('Unauthorized')
     } else if (request.headers.authorization) {
@@ -367,6 +379,8 @@ app.put("/v2/user/self", async (req, res) => {
 
 app.delete("/v2/user/self/pic",
     async (req, res) => {
+        console.log("@@@ DELETE '/user/self/pic' @@@");
+        client.increment("DELETE '/user/self/pic");
         if (!req.headers.authorization) {
             return res.status(401).send('Unauthorized')
         } else if (req.headers.authorization) {
@@ -439,6 +453,8 @@ app.delete("/v2/user/self/pic",
 
 // Endpoint created for assignment 1
 app.get('/healthz', (req, res) => {
+    console.log("@@@ GET '/healthz' @@@");
+    client.increment('GET /healthz');
     res.set({
         "readOnly": "true"
     });

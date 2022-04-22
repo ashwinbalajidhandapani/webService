@@ -1,0 +1,42 @@
+  name: Packer AMI - S3 Artifact - codeDeploy
+
+  on:
+    push:
+      branches: [main]
+
+  jobs:
+    publish-s3-artifact-and-deploy:
+      runs-on: ubuntu-latest
+      name: s3-artifact-codeDeploy
+
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v2
+
+        # set aws credentials
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-2
+
+        # moving the artifacts to s3
+        - name: move artifacts to s3
+          run: |
+            aws deploy push \
+            --application-name csye6225-webapp \
+            --description "Latest revision for csye6225-webapp-${{ github.sha }}" \
+            --ignore-hidden-files \
+            --s3-location s3://${{secrets.S3_BUCKETNAME }}/csye6225-webapp-${{ github.sha}}.zip \
+            --source .
+
+        # set AWS credentials
+        - name: Call Codedeploy
+          run: |
+            aws deploy create-deployment \
+            --application-name csye6225-webapp \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --deployment-group-name csye6225_webapp_deployment_group \
+            --file-exists-behavior OVERWRITE \
+            --s3-location bucket=${{ secrets.S3_BUCKETNAME }},key=csye6225-webapp-${{ github.sha }}.zip,bundleType=zip \

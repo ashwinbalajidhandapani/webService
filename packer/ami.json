@@ -21,22 +21,23 @@
         {
             "type":"shell",
             "inline":[
-                "echo '######YUM update#####'",
                 "sudo yum update -y",
-                "echo '######installing git#####'",
                 "sudo yum install git -y",
-                "echo '######installing epel#####'",
                 "sudo amazon-linux-extras install epel",
-                "echo '######node step -1#####'",
                 "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash",
-                "echo '######node step -2#####'",
                 ". ~/.nvm/nvm.sh",
-                "echo '######node step -3#####'",
                 "curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - ",
-                "echo '######node step -4#####'",
                 "sudo yum install -y nodejs",
-                "echo '#####pm2 installation#####'",
-                "sudo npm install -g pm2"
+                "sudo npm install -g pm2",
+                "sudo yum install ruby -y",
+                "sudo yum install wget -y",
+                "cd /home/ec2-user",
+                "wget https://aws-codedeploy-us-east-2.s3.us-east-2.amazonaws.com/latest/install",
+                "chmod +x ./install",
+                "sudo ./install auto",
+                "sudo service codedeploy-agent start",
+                "wget https://s3.us-east-2.amazonaws.com/amazoncloudwatch-agent-us-east-2/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm",
+                "sudo rpm -U ./amazon-cloudwatch-agent.rpm"
             ]
         },
         {
@@ -54,21 +55,14 @@
         {
             "type": "shell",
             "inline": [
-                "echo '######cd -ing into the webService app directory#####'",
+                "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ec2-user/node_app/cloud_watch/amazon-cloudwatch_agent.json -s",
                 "cd /home/ec2-user/node_app/",
-                "echo '######Running npm install command#####'",
                 "sudo npm install",
-                "echo '######starting app using pm2#####'",
                 "sudo pm2 start index.js",
-                "echo '######starting up systemd using pm2#####'",
                 "sudo pm2 startup systemd",
-                "echo '######saving state#####'",
                 "sudo pm2 save",
-                "echo '######Linking files#####'",
                 "sudo ln -s /home/ec2-user/node_app/node-service.service /etc/systemd/system/node-service.service",
-                "echo '######running daemon-reload as systemctl#####'",
                 "sudo systemctl daemon-reload",
-                "echo '######Enabling node-service#####'",
                 "sudo systemctl enable node-service.service",
                 "sudo systemctl start node-service.service"
             ]

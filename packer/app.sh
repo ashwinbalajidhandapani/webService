@@ -22,5 +22,5 @@ sudo npm install -g pm2
 # passwords=$(sudo grep 'temporary password' /var/log/mysqld.log | awk {'print $13'})
 # mysql --connect-expired-password -u root -p$passwords -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'Elgsid@1234';\"
 # mysql -u root -pAshwin@Kumar123 -e \"create database userdetails;\"
-mkdir /home/ec2-user/node-app
-chown ec2-user:ec2-user /home/ec2-user/node-app
+mkdir /home/ec2-user/node_app
+chown ec2-user:ec2-user /home/ec2-user/node_app
