@@ -37,7 +37,7 @@ function decodeBase64(inpString) {
 }
 
 // Adding a user (Unauthenticated)
-app.post("/v1/user", async (req, res, next) => {
+app.post("/v2/user", async (req, res, next) => {
     console.log("@@@ POST '/user/self/' @@@");
     client.increment("POST '/user/self/");
     try {
@@ -76,7 +76,7 @@ app.post("/v1/user", async (req, res, next) => {
     }
 });
 
-app.get("/v1/user/self", async (req, res) => {
+app.get("/v2/user/self", async (req, res) => {
     console.log("@@@ GET '/user/self/' @@@");
     client.increment("GET '/user/self/");
     if (!req.headers.authorization) {
@@ -142,7 +142,7 @@ app.get("/v1/user/self", async (req, res) => {
     }
 });
 
-app.put("/v1/user/self", async (req, res) => {
+app.put("/v2/user/self", async (req, res) => {
     console.log("@@@ PUT '/user/self/' @@@");
     client.increment("PUT '/user/self/");
     if (!req.headers.authorization) {
@@ -201,7 +201,7 @@ app.put("/v1/user/self", async (req, res) => {
 });
 
 // Assignment 5
- app.post("/v1/user/self/pic", upload.single('file_name'),
+ app.post("/v2/user/self/pic", upload.single('file_name'),
  async (req, res) => {
     console.log("@@@ POST '/user/self/pic' @@@");
     client.increment("POST '/user/self/pic");
@@ -320,7 +320,7 @@ app.put("/v1/user/self", async (req, res) => {
      }
  });
 
- app.get("/v1/user/self/pic", async (request, response) => {
+ app.get("/v2/user/self/pic", async (request, response) => {
     console.log("@@@ GET '/user/self/pic' @@@");
     client.increment("GET '/user/self/pic");
     if (!request.headers.authorization) {
@@ -377,7 +377,7 @@ app.put("/v1/user/self", async (req, res) => {
     }
 });
 
-app.delete("/v1/user/self/pic",
+app.delete("/v2/user/self/pic",
     async (req, res) => {
         console.log("@@@ DELETE '/user/self/pic' @@@");
         client.increment("DELETE '/user/self/pic");
