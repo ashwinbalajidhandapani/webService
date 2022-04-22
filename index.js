@@ -35,7 +35,7 @@ function decodeBase64(inpString) {
 }
 
 // Adding a user (Unauthenticated)
-app.post("/v1/user", async (req, res, next) => {
+app.post("/v2/user", async (req, res, next) => {
     try {
         const { first_name, last_name, email_id, password } = req.body;
         const salt = hashBcrypt.genSaltSync(10);
@@ -72,7 +72,7 @@ app.post("/v1/user", async (req, res, next) => {
     }
 });
 
-app.get("/v1/user/self", async (req, res) => {
+app.get("/v2/user/self", async (req, res) => {
     if (!req.headers.authorization) {
         res.status(401).send('Unauthorized')
     }
@@ -136,7 +136,7 @@ app.get("/v1/user/self", async (req, res) => {
     }
 });
 
-app.put("/v1/user/self", async (req, res) => {
+app.put("/v2/user/self", async (req, res) => {
     if (!req.headers.authorization) {
         res.status(401).send('Unauthorized')
     }
@@ -193,7 +193,7 @@ app.put("/v1/user/self", async (req, res) => {
 });
 
 // Assignment 5
- app.post("/v1/user/self/pic", upload.single('file_name'),
+ app.post("/v2/user/self/pic", upload.single('file_name'),
  async (req, res) => {
      const file = req.file   
      const description = req.body.description
@@ -310,7 +310,7 @@ app.put("/v1/user/self", async (req, res) => {
      }
  });
 
- app.get("/v1/user/self/pic", async (request, response) => {
+ app.get("/v2/user/self/pic", async (request, response) => {
     if (!request.headers.authorization) {
         response.status(401).send('Unauthorized')
     } else if (request.headers.authorization) {
@@ -365,7 +365,7 @@ app.put("/v1/user/self", async (req, res) => {
     }
 });
 
-app.delete("/v1/user/self/pic",
+app.delete("/v2/user/self/pic",
     async (req, res) => {
         if (!req.headers.authorization) {
             return res.status(401).send('Unauthorized')
