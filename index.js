@@ -453,7 +453,9 @@ app.delete("/v3/user/self/pic",
 
 // Endpoint created for assignment 1
 
+
 app.get('/healthz', (req, res) => {
+
     console.log("@@@ GET '/healthz' @@@");
     client.increment('GET /healthz');
     res.set({
