@@ -26,3 +26,15 @@
     18. account_updated field for the user should be updated when the user update is successful.
     19. A user can only update their own account information.
     20. Get user information, As a user, I want to get my account information. Response payload should return all fields for the user except for the password.
+
+    ## Pre-requisites:
+        - AWS Account
+        - AWS SDK installed in the local machine
+        
+    ### To Run application:
+    - Fork the current repository
+    - git clone https://github.com/ashwinbalajidhandapani/infrastructure.git
+    - Make changes to cloudformation template wherever necessary (config.json)
+    - run the cloudformation template - default AZ - us-east-1 (us-east-2 and us-west-1 also available) 
+
+    
